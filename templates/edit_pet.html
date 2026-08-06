@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Pet Profile – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- ============================================================
+       DASHBOARD NAVBAR
+       ============================================================ -->
+  <header class="navbar">
+    <div class="container">
+      <a href="{{ url_for('dashboard') }}" class="nav-logo">🐾 PawCare</a>
+
+      <nav>
+        <ul class="nav-menu dashboard-nav">
+          <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+          <li><a href="{{ url_for('view_pets') }}" class="nav-link">My Pets</a></li>
+          <li><a href="{{ url_for('add_pet') }}" class="nav-link">Add Pet</a></li>
+          <li><a href="{{ url_for('view_history') }}" class="nav-link">History</a></li>
+          <li><span class="nav-user" style="color: var(--dark-pink); font-weight: 600; margin-left: 0.5rem;">👋 {{ session.get('full_name') }}</span></li>
+          <li><a href="{{ url_for('logout') }}" class="btn-login">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT – EDIT PET FORM
+       ============================================================ -->
+  <main class="dashboard">
+    <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 180px); padding: 4rem 1.5rem 2rem;">
+      <div class="auth-card" style="width: 100%; max-width: 500px; margin-top: 2rem;">
+        
+        <!-- Header -->
+        <div class="auth-header">
+          <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem; text-shadow: 0 4px 10px rgba(255, 105, 180, 0.15);">✏️</span>
+          <h1>Edit Pet Profile</h1>
+          <p>Update details for {{ pet.pet_name }}.</p>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Client-side validation error box (hidden by default) -->
+        <div class="alert alert-error" id="clientError" style="display: none;"></div>
+
+        <!-- Edit Pet Form -->
+        <form method="POST" action="{{ url_for('edit_pet', pet_id=pet.pet_id) }}" id="editPetForm" novalidate>
+          
+          <div class="form-group">
+            <label for="pet_name">Pet Name *</label>
+            <input
+              type="text"
+              id="pet_name"
+              name="pet_name"
+              placeholder="e.g. Buddy"
+              value="{{ pet.pet_name }}"
+              required
+            >
+          </div>
+
+          <!-- Animal Type is read-only as per requirements -->
+          <div class="form-group">
+            <label for="animal_type">Animal Type (Read-only)</label>
+            <input
+              type="text"
+              id="animal_type"
+              name="animal_type"
+              value="{{ pet.animal_type }}"
+              readonly
+              style="background: rgba(255, 182, 193, 0.1); cursor: not-allowed; border-color: rgba(255, 182, 193, 0.2);"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="breed">Breed</label>
+            <input
+              type="text"
+              id="breed"
+              name="breed"
+              placeholder="e.g. Golden Retriever"
+              value="{{ pet.breed if pet.breed != 'N/A' else '' }}"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="age">Age (Years)</label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              placeholder="e.g. 3"
+              value="{{ pet.age if pet.age != 'N/A' else '' }}"
+              min="1"
+              step="1"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender">
+              <option value="" {% if pet.gender == 'N/A' or not pet.gender %}selected{% endif %}>Select gender (Optional)</option>
+              <option value="Male" {% if pet.gender == 'Male' %}selected{% endif %}>Male</option>
+              <option value="Female" {% if pet.gender == 'Female' %}selected{% endif %}>Female</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="weight">Weight (kg)</label>
+            <input
+              type="number"
+              id="weight"
+              name="weight"
+              placeholder="e.g. 12.5"
+              value="{{ pet.weight.replace(' kg', '') if pet.weight != 'N/A' else '' }}"
+              min="0.01"
+              step="0.01"
+            >
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <a href="{{ url_for('view_pets') }}" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.85rem 0;">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="flex: 2;">Save Changes</button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="footer">
+    <p>Made with ❤️ for Animal Care</p>
+  </footer>
+
+  <!-- ============================================================
+       CLIENT-SIDE FORM VALIDATION
+       ============================================================ -->
+  <script>
+    document.getElementById("editPetForm").addEventListener("submit", function(event) {
+      var errorBox = document.getElementById("clientError");
+      errorBox.style.display = "none";
+      errorBox.textContent = "";
+
+      var petName = document.getElementById("pet_name").value.trim();
+      var ageVal = document.getElementById("age").value.trim();
+      var weightVal = document.getElementById("weight").value.trim();
+
+      if (!petName) {
+        event.preventDefault();
+        errorBox.textContent = "Pet Name is required.";
+        errorBox.style.display = "block";
+        return false;
+      }
+
+      if (ageVal !== "") {
+        var age = Number(ageVal);
+        if (isNaN(age) || age <= 0 || !Number.isInteger(age)) {
+          event.preventDefault();
+          errorBox.textContent = "Age must be a positive whole number.";
+          errorBox.style.display = "block";
+          return false;
+        }
+      }
+
+      if (weightVal !== "") {
+        var weight = Number(weightVal);
+        if (isNaN(weight) || weight <= 0) {
+          event.preventDefault();
+          errorBox.textContent = "Weight must be a positive number.";
+          errorBox.style.display = "block";
+          return false;
+        }
+      }
+
+      return true;
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="dashboard" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem;">
+    <div class="auth-card" style="text-align: center; max-width: 500px; width: 100%; box-shadow: var(--shadow-soft);">
+      <span style="font-size: 5.5rem; display: block; margin-bottom: 1rem; text-shadow: 0 4px 12px rgba(255,105,180,0.15);">🕵️‍♀️</span>
+      <h1 style="color: var(--dark-pink); font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; font-family: var(--font-heading);">404 - Page Not Found</h1>
+      <p style="color: var(--text-light); margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.6;">
+        Oh paw! We couldn't find the page you were searching for. It might have taken a walk, changed its route, or never existed in the first place.
+      </p>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('dashboard') }}" class="btn btn-primary" style="text-decoration: none; padding: 0.75rem 1.8rem;">Return to Dashboard</a>
+        {% else %}
+          <a href="{{ url_for('index') }}" class="btn btn-primary" style="text-decoration: none; padding: 0.75rem 1.8rem;">Back to Home</a>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</body>
+</html>

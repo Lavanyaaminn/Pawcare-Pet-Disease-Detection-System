@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Pets – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- ============================================================
+       DASHBOARD NAVBAR
+       ============================================================ -->
+  <header class="navbar">
+    <div class="container">
+      <a href="{{ url_for('dashboard') }}" class="nav-logo">🐾 PawCare</a>
+
+      <nav>
+        <ul class="nav-menu dashboard-nav">
+          <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+          <li><a href="{{ url_for('view_pets') }}" class="nav-link">My Pets</a></li>
+          <li><a href="{{ url_for('add_pet') }}" class="nav-link">Add Pet</a></li>
+          <li><a href="{{ url_for('view_history') }}" class="nav-link">History</a></li>
+          <li><span class="nav-user" style="color: var(--dark-pink); font-weight: 600; margin-left: 0.5rem;">👋 {{ session.get('full_name') }}</span></li>
+          <li><a href="{{ url_for('logout') }}" class="btn-login">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT – PETS LISTING
+       ============================================================ -->
+  <main class="dashboard">
+    <div class="container" style="padding-top: 2rem;">
+
+      <!-- Flash messages (e.g. database error messages, success reports) -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Page Header -->
+      <div class="dashboard-welcome" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2.5rem;">
+        <h1 style="color: var(--dark-pink); font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem;">My Pets</h1>
+        <p style="color: var(--text-light); font-size: 1.05rem;">Manage your registered companions and run disease predictions.</p>
+        
+        <a href="{{ url_for('add_pet') }}" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.8rem;">
+          <span>➕</span> Add Another Pet
+        </a>
+      </div>
+
+      <!-- Search and Filter Bar -->
+      <form method="GET" action="{{ url_for('view_pets') }}" class="search-filter-bar" style="margin-bottom: 2.5rem;">
+        <div style="flex: 2; min-width: 250px; position: relative;">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search by pet name..."
+            value="{{ search }}"
+            style="padding-left: 2.5rem;"
+          >
+          <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-light); pointer-events: none;">🔍</span>
+        </div>
+
+        <div style="flex: 1; min-width: 150px;">
+          <select name="type">
+            <option value="">All Animals</option>
+            <option value="Dog" {% if selected_type == 'Dog' %}selected{% endif %}>Dog</option>
+            <option value="Cat" {% if selected_type == 'Cat' %}selected{% endif %}>Cat</option>
+            <option value="Rabbit" {% if selected_type == 'Rabbit' %}selected{% endif %}>Rabbit</option>
+            <option value="Bird" {% if selected_type == 'Bird' %}selected{% endif %}>Bird</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; min-width: 180px;">
+          <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.9rem; flex: 1;">Filter</button>
+          {% if search or selected_type %}
+            <a href="{{ url_for('view_pets') }}" class="btn btn-secondary" style="padding: 0.75rem 1.2rem; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; text-decoration: none; flex: 1;">Clear</a>
+          {% endif %}
+        </div>
+      </form>
+
+      {% if pets %}
+        <!-- Pets Grid -->
+        <div class="pets-grid">
+          {% for pet in pets %}
+            <article class="pet-card">
+              <div>
+                <!-- Card Header -->
+                <div class="pet-card-header">
+                  <h3 class="pet-card-title">{{ pet.pet_name }}</h3>
+                  <span class="pet-card-icon">
+                    {% if pet.animal_type == 'Dog' %}🐶
+                    {% elif pet.animal_type == 'Cat' %}🐱
+                    {% elif pet.animal_type == 'Rabbit' %}🐰
+                    {% elif pet.animal_type == 'Bird' %}🐦
+                    {% else %}🐾{% endif %}
+                  </span>
+                </div>
+
+                <!-- Pet details list -->
+                <div class="pet-details">
+                  <div class="pet-detail-item">
+                    <span class="pet-detail-label">Type</span>
+                    <span class="pet-detail-value">{{ pet.animal_type }}</span>
+                  </div>
+                  
+                  <div class="pet-detail-item">
+                    <span class="pet-detail-label">Breed</span>
+                    <span class="pet-detail-value">{{ pet.breed }}</span>
+                  </div>
+
+                  <div class="pet-detail-item">
+                    <span class="pet-detail-label">Age</span>
+                    <span class="pet-detail-value">
+                      {% if pet.age != 'N/A' %}
+                        {{ pet.age }} {% if pet.age == 1 %}Year{% else %}Years{% endif %}
+                      {% else %}
+                        N/A
+                      {% endif %}
+                    </span>
+                  </div>
+
+                  <div class="pet-detail-item">
+                    <span class="pet-detail-label">Gender</span>
+                    <span class="pet-detail-value">{{ pet.gender }}</span>
+                  </div>
+
+                  <div class="pet-detail-item">
+                    <span class="pet-detail-label">Weight</span>
+                    <span class="pet-detail-value">{{ pet.weight }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action buttons for Edit, Delete, Predict -->
+              <div class="pet-actions">
+                <a href="{{ url_for('predict_disease', pet_id=pet.pet_id) }}" class="btn-pet-action btn-pet-predict">🔬 Predict Disease</a>
+                <div class="pet-actions-row">
+                  <a href="{{ url_for('edit_pet', pet_id=pet.pet_id) }}" class="btn-pet-action btn-pet-edit">✏️ Edit</a>
+                  
+                  <!-- POST-based secure delete structure -->
+                  <form method="POST" action="{{ url_for('delete_pet', pet_id=pet.pet_id) }}" style="display: block; width: 100%; margin: 0; padding: 0;" onsubmit="return confirm('Are you sure you want to delete {{ pet.pet_name }}? This action cannot be undone.');">
+                    <button type="submit" class="btn-pet-action btn-pet-delete" style="width: 100%; height: 100%; border: none;">🗑️ Delete</button>
+                  </form>
+                </div>
+              </div>
+
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        {% if search or selected_type %}
+          <!-- No Search Results Container -->
+          <div class="empty-pets-container">
+            <div class="empty-pets-icon">🔍</div>
+            <h2 class="empty-pets-title">No Matches Found</h2>
+            <p class="empty-pets-description">No pets matching "{{ search }}" or of type "{{ selected_type }}" were found in your record. Try resetting your query.</p>
+            <a href="{{ url_for('view_pets') }}" class="btn btn-secondary">Clear Search & Filter</a>
+          </div>
+        {% else %}
+          <!-- Initial Empty list container -->
+          <div class="empty-pets-container">
+            <div class="empty-pets-icon">🐩</div>
+            <h2 class="empty-pets-title">No Pets Registered</h2>
+            <p class="empty-pets-description">You haven't added any pets yet. Register your first pet to start tracking their health status.</p>
+            <a href="{{ url_for('add_pet') }}" class="btn btn-primary">➕ Register your Pet</a>
+          </div>
+        {% endif %}
+      {% endif %}
+
+    </div>
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="footer">
+    <p>Made with ❤️ for Animal Care</p>
+  </footer>
+
+</body>
+</html>

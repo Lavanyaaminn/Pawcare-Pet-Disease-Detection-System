@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>500 - System Error – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="dashboard" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem;">
+    <div class="auth-card" style="text-align: center; max-width: 500px; width: 100%; box-shadow: var(--shadow-soft);">
+      <span style="font-size: 5.5rem; display: block; margin-bottom: 1rem; text-shadow: 0 4px 12px rgba(255, 105, 180, 0.15);">🩹</span>
+      <h1 style="color: var(--dark-pink); font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; font-family: var(--font-heading);">500 - Server Error</h1>
+      <p style="color: var(--text-light); margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.6;">
+        Oh dear! We've run into a technical hiccup behind the scenes. Please try refreshing or returning to the dashboard.
+      </p>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary" style="text-decoration: none; padding: 0.75rem 1.8rem;">Return to Dashboard</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

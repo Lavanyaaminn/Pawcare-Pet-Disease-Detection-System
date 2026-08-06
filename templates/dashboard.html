@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- ============================================================
+       DASHBOARD NAVBAR
+       ============================================================ -->
+  <header class="navbar">
+    <div class="container">
+      <a href="{{ url_for('dashboard') }}" class="nav-logo">🐾 PawCare</a>
+
+      <nav>
+        <ul class="nav-menu dashboard-nav">
+          <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+          <li><a href="{{ url_for('view_pets') }}" class="nav-link">My Pets</a></li>
+          <li><a href="{{ url_for('add_pet') }}" class="nav-link">Add Pet</a></li>
+          <li><a href="{{ url_for('view_history') }}" class="nav-link">History</a></li>
+          <li><span class="nav-user" style="color: var(--dark-pink); font-weight: 600; margin-left: 0.5rem;">👋 {{ full_name }}</span></li>
+          <li><a href="{{ url_for('logout') }}" class="btn-login">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+
+  <!-- ============================================================
+       DASHBOARD MAIN CONTENT
+       ============================================================ -->
+  <main class="dashboard">
+    <div class="container">
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Welcome banner -->
+      <div class="dashboard-welcome">
+        <h1>Welcome, {{ full_name }}</h1>
+        <p>Your pet health management hub. Choose an option below to get started.</p>
+      </div>
+
+      <!-- Placeholder feature cards -->
+      <div class="dashboard-grid">
+
+        <a href="{{ url_for('add_pet') }}" class="dashboard-card">
+          <span class="dashboard-card-icon">🐾</span>
+          <h3>Add Pet</h3>
+          <p>Register a new pet profile with breed, age, and health details.</p>
+        </a>
+
+        <a href="{{ url_for('view_pets') }}" class="dashboard-card">
+          <span class="dashboard-card-icon">🐶</span>
+          <h3>My Pets</h3>
+          <p>View and manage all your registered pets in one place.</p>
+        </a>
+
+        <a href="{{ url_for('view_pets') }}" class="dashboard-card">
+          <span class="dashboard-card-icon">🔬</span>
+          <h3>Disease Prediction</h3>
+          <p>Predict potential diseases based on symptoms and pet history.</p>
+        </a>
+
+        <a href="{{ url_for('view_history') }}" class="dashboard-card">
+          <span class="dashboard-card-icon">📋</span>
+          <h3>Prediction History</h3>
+          <p>Review past disease predictions and confidence scores.</p>
+        </a>
+
+      </div>
+    </div>
+  </main>
+
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="footer">
+    <p>Made with ❤️ for Animal Care</p>
+  </footer>
+
+</body>
+</html>

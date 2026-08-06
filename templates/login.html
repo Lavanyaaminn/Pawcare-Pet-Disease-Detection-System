@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page">
+
+  <!-- ============================================================
+       AUTH PAGE – Login Form
+       ============================================================ -->
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <!-- Logo & heading -->
+      <div class="auth-header">
+        <a href="{{ url_for('index') }}" class="auth-logo">🐾 PawCare</a>
+        <h1>Welcome Back</h1>
+        <p>Log in to manage your pets and health records.</p>
+      </div>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Client-side validation error box (hidden by default) -->
+      <div class="alert alert-error" id="clientError" style="display: none;"></div>
+
+      <!-- Login form -->
+      <form method="POST" action="{{ url_for('login') }}" id="loginForm" novalidate>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Log In</button>
+      </form>
+
+      <!-- Link to register -->
+      <p class="auth-footer-text">
+        Don't have an account?
+        <a href="{{ url_for('register') }}">Register here</a>
+      </p>
+
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script>
+    // Attach client-side validation to the login form
+    document.getElementById("loginForm").addEventListener("submit", validateLogin);
+  </script>
+
+</body>
+</html>

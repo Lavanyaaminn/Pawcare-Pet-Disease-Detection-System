@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predict Disease – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- ============================================================
+       DASHBOARD NAVBAR
+       ============================================================ -->
+  <header class="navbar">
+    <div class="container">
+      <a href="{{ url_for('dashboard') }}" class="nav-logo">🐾 PawCare</a>
+
+      <nav>
+        <ul class="nav-menu dashboard-nav">
+          <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+          <li><a href="{{ url_for('view_pets') }}" class="nav-link">My Pets</a></li>
+          <li><a href="{{ url_for('add_pet') }}" class="nav-link">Add Pet</a></li>
+          <li><a href="{{ url_for('view_history') }}" class="nav-link">History</a></li>
+          <li><span class="nav-user" style="color: var(--dark-pink); font-weight: 600; margin-left: 0.5rem;">👋 {{ session.get('full_name') }}</span></li>
+          <li><a href="{{ url_for('logout') }}" class="btn-login">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT – PREDICT DISEASE FORM
+       ============================================================ -->
+  <main class="dashboard">
+    <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 180px); padding: 4rem 1.5rem 2rem;">
+      <div class="auth-card" style="width: 100%; max-width: 600px; margin-top: 2rem;">
+        
+        <!-- Header -->
+        <div class="auth-header">
+          <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem; text-shadow: 0 4px 10px rgba(255, 105, 180, 0.15);">🔬</span>
+          <h1>Predict Disease</h1>
+          <p>Select all symptoms currently observed in <strong>{{ pet.pet_name }}</strong> ({{ pet.animal_type }}).</p>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Client-side error message -->
+        <div class="alert alert-error" id="clientError" style="display: none;"></div>
+
+        <!-- Predict Form -->
+        <form method="POST" action="{{ url_for('predict_disease', pet_id=pet.pet_id) }}" id="predictForm">
+          
+          <div class="form-group" style="margin-bottom: 2rem;">
+            <label style="font-size: 1.1rem; color: var(--dark-pink); font-weight: 600; margin-bottom: 1rem; display: block;">Select Symptoms observed:</label>
+            
+            {% if symptoms %}
+              <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; text-align: left; background: rgba(255, 255, 255, 0.3); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--glass-border);">
+                {% for symptom in symptoms %}
+                  <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.05rem; cursor: pointer; color: var(--text-main); font-weight: 500; user-select: none;">
+                    <input
+                      type="checkbox"
+                      name="symptoms"
+                      value="{{ symptom.symptom_id }}"
+                      style="width: 20px; height: 20px; accent-color: var(--dark-pink); cursor: pointer; border-radius: 4px; border: 1.5px solid var(--glass-border);"
+                    >
+                    <span>{{ symptom.symptom_name }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p style="color: var(--text-light); font-style: italic;">No symptoms configured in system for {{ pet.animal_type }}s.</p>
+            {% endif %}
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <a href="{{ url_for('view_pets') }}" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.85rem 0; text-decoration: none; line-height: 2rem;">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="flex: 2;" {% if not symptoms %}disabled style="opacity: 0.6; cursor: not-allowed;"{% endif %}>Analyze Symptoms</button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="footer">
+    <p>Made with ❤️ for Animal Care</p>
+  </footer>
+
+  <!-- ============================================================
+       CLIENT-SIDE FORM VALIDATION
+       ============================================================ -->
+  <script>
+    document.getElementById("predictForm").addEventListener("submit", function(event) {
+      var checkboxes = document.querySelectorAll('input[name="symptoms"]:checked');
+      var errorBox = document.getElementById("clientError");
+      
+      if (checkboxes.length === 0) {
+        event.preventDefault();
+        errorBox.textContent = "Please select at least one symptom for disease analysis.";
+        errorBox.style.display = "block";
+        errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+      errorBox.style.display = "none";
+      return true;
+    });
+  </script>
+
+</body>
+</html>

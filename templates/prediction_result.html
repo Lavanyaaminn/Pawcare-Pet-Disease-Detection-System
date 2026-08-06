@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction Result – PawCare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- ============================================================
+       DASHBOARD NAVBAR
+       ============================================================ -->
+  <header class="navbar">
+    <div class="container">
+      <a href="{{ url_for('dashboard') }}" class="nav-logo">🐾 PawCare</a>
+
+      <nav>
+        <ul class="nav-menu dashboard-nav">
+          <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+          <li><a href="{{ url_for('view_pets') }}" class="nav-link">My Pets</a></li>
+          <li><a href="{{ url_for('add_pet') }}" class="nav-link">Add Pet</a></li>
+          <li><a href="{{ url_for('view_history') }}" class="nav-link">History</a></li>
+          <li><span class="nav-user" style="color: var(--dark-pink); font-weight: 600; margin-left: 0.5rem;">👋 {{ session.get('full_name') }}</span></li>
+          <li><a href="{{ url_for('logout') }}" class="btn-login">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT – PREDICTION RESULTS
+       ============================================================ -->
+  <main class="dashboard">
+    <div class="container" style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 180px); padding: 4rem 1.5rem 2rem;">
+      <div class="auth-card" style="width: 100%; max-width: 650px; margin-top: 2rem;">
+        
+        <!-- Header -->
+        <div class="auth-header" style="margin-bottom: 2rem;">
+          <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem; text-shadow: 0 4px 10px rgba(255, 105, 180, 0.15);">📋</span>
+          <h1>Prediction Analysis</h1>
+          <p>Health analysis result for <strong>{{ pet.pet_name }}</strong> ({{ pet.animal_type }}).</p>
+        </div>
+
+        {% if has_match %}
+          <!-- Success match container -->
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Pet Photo Identifier Card -->
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem; box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+              <div style="font-size: 2.8rem; background: rgba(255, 105, 180, 0.1); width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1.5px solid var(--glass-border);">
+                {% if pet.animal_type == 'Dog' %}🐶
+                {% elif pet.animal_type == 'Cat' %}🐱
+                {% elif pet.animal_type == 'Rabbit' %}🐰
+                {% elif pet.animal_type == 'Bird' %}🐦
+                {% else %}🐾{% endif %}
+              </div>
+              <div>
+                <h3 style="color: var(--dark-pink); font-size: 1.4rem; font-weight: 700; margin: 0 0 0.2rem; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);">{{ pet.pet_name }}</h3>
+                <p style="color: var(--text-light); margin: 0; font-size: 0.95rem;">Species: {{ pet.animal_type }} {% if pet.breed and pet.breed != 'N/A' %}• Breed: {{ pet.breed }}{% endif %}</p>
+              </div>
+            </div>
+
+            <!-- Confidence Progress Bar Card -->
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                <span style="font-weight: 700; color: var(--text-main); font-size: 1.05rem;">Match Confidence</span>
+                <span style="font-weight: 700; color: var(--dark-pink); font-size: 1.15rem;">{{ "%.1f"|format(confidence_score) }}%</span>
+              </div>
+              <div style="background: rgba(255, 105, 180, 0.1); width: 100%; height: 16px; border-radius: 50px; overflow: hidden; border: 1px solid var(--glass-border);">
+                <div style="background: linear-gradient(90deg, var(--primary-pink), var(--dark-pink)); height: 100%; border-radius: 50px; width: {{ confidence_score }}%; transition: width 1s ease-out;"></div>
+              </div>
+            </div>
+
+            <!-- Disease Card -->
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.5rem; text-align: left; box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+              <h3 style="color: var(--dark-pink); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
+                🦠 Diagnosis: {{ disease_name }}
+              </h3>
+              <p style="color: var(--text-main); line-height: 1.6; font-size: 1.02rem; margin: 0; background: rgba(255, 255, 255, 0.4); padding: 0.8rem 1rem; border-radius: var(--radius-sm); border: 1px solid rgba(255, 182, 193, 0.15);">
+                {{ description }}
+              </p>
+            </div>
+
+            <!-- Treatment Card -->
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.5rem; text-align: left; box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+              <h3 style="color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
+                💊 Recommended Treatment:
+              </h3>
+              <p style="color: var(--text-main); line-height: 1.6; font-size: 1.02rem; margin: 0; background: rgba(255, 255, 255, 0.4); padding: 0.8rem 1rem; border-radius: var(--radius-sm); border: 1px solid rgba(255, 182, 193, 0.15);">
+                {{ treatment }}
+              </p>
+            </div>
+
+            <!-- Precautions Card -->
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.5rem; text-align: left; box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+              <h3 style="color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem;">
+                🛡️ Preventative Precautions:
+              </h3>
+              <p style="color: var(--text-main); line-height: 1.6; font-size: 1.02rem; margin: 0; background: rgba(255, 255, 255, 0.4); padding: 0.8rem 1rem; border-radius: var(--radius-sm); border: 1px solid rgba(255, 182, 193, 0.15);">
+                {{ precautions }}
+              </p>
+            </div>
+
+          </div>
+        {% else %}
+          <!-- No match found error container -->
+          <div style="background: rgba(220, 53, 69, 0.05); border: 1.5px solid rgba(220, 53, 69, 0.15); border-radius: var(--radius-lg); padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-card); backdrop-filter: blur(10px);">
+            <span style="font-size: 4rem; display: block; margin-bottom: 1rem;">🔍</span>
+            <h2 style="color: #dc3545; font-size: 1.6rem; font-weight: 700; margin-bottom: 0.8rem;">No Matching Disease Found</h2>
+            <p style="color: var(--text-light); line-height: 1.6; font-size: 1.05rem; margin: 0 auto; max-width: 450px;">
+              The selected symptoms do not match any configured disease in the system for this animal type. Try re-assessing observed symptoms.
+            </p>
+          </div>
+        {% endif %}
+
+        <!-- Disclaimer Block -->
+        <div style="margin-top: 2rem; background: rgba(255, 193, 7, 0.08); border-left: 4px solid #ffc107; padding: 1rem 1.2rem; border-radius: 4px; text-align: left;">
+          <p style="color: #664d03; font-size: 0.9rem; font-weight: 600; line-height: 1.5; margin: 0;">
+            ⚠️ <strong>Disclaimer:</strong> This prediction is for educational purposes only and should not replace professional veterinary advice, diagnosis, or treatment. Always consult a veterinarian if your pet shows health symptoms.
+          </p>
+        </div>
+
+        <!-- Back to list buttons -->
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+          <a href="{{ url_for('view_pets') }}" class="btn btn-secondary" style="flex: 1; text-align: center; padding: 0.85rem 0; text-decoration: none; line-height: 2rem;">Back to My Pets</a>
+          {% if has_match %}
+            <a href="{{ url_for('predict_disease', pet_id=pet.pet_id) }}" class="btn btn-primary" style="flex: 1; text-align: center; padding: 0.85rem 0; text-decoration: none; line-height: 2rem;">Analyze Again</a>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="footer">
+    <p>Made with ❤️ for Animal Care</p>
+  </footer>
+
+</body>
+</html>
